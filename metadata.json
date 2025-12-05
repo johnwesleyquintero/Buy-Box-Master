@@ -1,0 +1,5 @@
+{
+  "name": "Buy Box Master",
+  "description": "A lightning-fast internal tool to detect Buy Box wins, analyze Keepa CSV exports, and optimize pricing strategy in real-time.",
+  "requestFramePermissions": []
+}
