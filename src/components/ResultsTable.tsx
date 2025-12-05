@@ -19,11 +19,29 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
   const [statusFilter, setStatusFilter] = useState<BuyBoxStatus | 'ALL'>('ALL');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // State for Fixed Image Tooltip
+  const [hoveredImage, setHoveredImage] = useState<{ src: string; top: number; left: number } | null>(null);
+
   // Handle Copy ASIN
   const handleCopyAsin = (asin: string, id: string) => {
     navigator.clipboard.writeText(asin);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1500);
+  };
+
+  // Handle Image Hover
+  const handleMouseEnterImage = (e: React.MouseEvent<HTMLDivElement>, src: string | null) => {
+    if (!src) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    setHoveredImage({
+      src,
+      top: rect.top - 40, // Shift up slightly to center-ish
+      left: rect.right + 16, // Offset to right
+    });
+  };
+
+  const handleMouseLeaveImage = () => {
+    setHoveredImage(null);
   };
 
   // Handle Sort Request
@@ -180,7 +198,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
         </div>
       </div>
 
-      {/* Table Container - Constrained Height + Scroll */}
+      {/* Table Container */}
       <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col h-[600px]">
         <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
           <table className="min-w-full text-left text-sm whitespace-nowrap border-separate border-spacing-0">
@@ -200,28 +218,49 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
                 processedProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-slate-50 transition-colors group">
                     <td className="px-6 py-4">
-                      {/* ASIN Copy Interaction */}
-                      <div 
-                        className="flex items-center gap-2 font-medium text-slate-900 cursor-pointer hover:text-blue-600 transition-colors"
-                        onClick={() => handleCopyAsin(product.asin, product.id)}
-                        title="Click to copy ASIN"
-                      >
-                        {product.asin}
-                        <span className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {copiedId === product.id ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-green-500">
-                              <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
-                            </svg>
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                              <path d="M7 3.5A1.5 1.5 0 018.5 2h3.879a1.5 1.5 0 011.06.44l3.122 3.12A1.5 1.5 0 0117 6.622V12.5a1.5 1.5 0 01-1.5 1.5h-1v-3.379a3 3 0 00-.879-2.121L10.5 5.379A3 3 0 008.379 4.5H7v-1z" />
-                              <path d="M4.5 6A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L9.44 6.439A1.5 1.5 0 008.378 6H4.5z" />
-                            </svg>
-                          )}
-                        </span>
-                      </div>
-                      <div className="text-xs text-slate-500 truncate max-w-[200px]" title={product.title}>
-                        {product.title}
+                      <div className="flex items-center gap-3">
+                        {/* Image Thumbnail with State-Based Tooltip */}
+                        <div 
+                          className="relative shrink-0 cursor-zoom-in"
+                          onMouseEnter={(e) => handleMouseEnterImage(e, product.imageUrl)}
+                          onMouseLeave={handleMouseLeaveImage}
+                        >
+                          <div className="h-10 w-10 rounded bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
+                            {product.imageUrl ? (
+                                <img src={product.imageUrl} alt="" className="h-full w-full object-contain" />
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-300">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                </svg>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Text Info */}
+                        <div>
+                          <div 
+                            className="flex items-center gap-2 font-medium text-slate-900 cursor-pointer hover:text-blue-600 transition-colors"
+                            onClick={() => handleCopyAsin(product.asin, product.id)}
+                            title="Click to copy ASIN"
+                          >
+                            {product.asin}
+                            <span className="text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {copiedId === product.id ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-green-500">
+                                  <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                                </svg>
+                              ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                  <path d="M7 3.5A1.5 1.5 0 018.5 2h3.879a1.5 1.5 0 011.06.44l3.122 3.12A1.5 1.5 0 0117 6.622V12.5a1.5 1.5 0 01-1.5 1.5h-1v-3.379a3 3 0 00-.879-2.121L10.5 5.379A3 3 0 008.379 4.5H7v-1z" />
+                                  <path d="M4.5 6A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L9.44 6.439A1.5 1.5 0 008.378 6H4.5z" />
+                                </svg>
+                              )}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-500 truncate max-w-[200px]" title={product.title}>
+                            {product.title}
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">{getStatusBadge(product.status)}</td>
@@ -259,12 +298,27 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
             </tbody>
           </table>
         </div>
-        {/* Simple Footer/Status Bar for Table context */}
+        
+        {/* Footer */}
         <div className="border-t border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-500 flex justify-between">
            <span>Showing {processedProducts.length} results</span>
            <span>Scroll for more ↓</span>
         </div>
       </div>
+
+      {/* FIXED TOOLTIP OVERLAY - Renders outside the table flow to avoid clipping */}
+      {hoveredImage && (
+        <div 
+          className="fixed z-[9999] bg-white p-2 rounded-xl shadow-2xl border border-slate-200 pointer-events-none animate-fade-in"
+          style={{ 
+            top: `${hoveredImage.top}px`, 
+            left: `${hoveredImage.left}px`,
+            width: '240px'
+          }}
+        >
+          <img src={hoveredImage.src} alt="Preview" className="w-full h-auto rounded-lg bg-slate-50" />
+        </div>
+      )}
     </div>
   );
 };
