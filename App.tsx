@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import FileUpload from './components/FileUpload';
 import ResultsTable from './components/ResultsTable';
 import Summary from './components/Summary';
+import HelpModal from './components/HelpModal';
 import { RawKeepaRow, AnalyzedProduct, BuyBoxStatus, SummaryStats } from './types';
 import { analyzeRow } from './utils/status';
 import { APP_NAME, APP_VERSION, OUR_SELLER_NAMES } from './constants';
@@ -9,6 +10,7 @@ import { APP_NAME, APP_VERSION, OUR_SELLER_NAMES } from './constants';
 const App: React.FC = () => {
   const [rawRows, setRawRows] = useState<RawKeepaRow[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL');
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const analyzedData: AnalyzedProduct[] = useMemo(() => {
     return rawRows
@@ -59,6 +61,17 @@ const App: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-4">
+            {/* Help Icon - Always Visible */}
+            <button
+                onClick={() => setIsHelpOpen(true)}
+                className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-full transition-all duration-200"
+                title="Open Help & Documentation"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                </svg>
+            </button>
+
              {rawRows.length > 0 && (
                 <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-white/50 rounded-lg border border-slate-200/60 shadow-inner">
                   <label htmlFor="brand-select" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -82,7 +95,7 @@ const App: React.FC = () => {
             {rawRows.length > 0 && (
               <button
                 onClick={handleReset}
-                className="text-sm font-medium text-slate-500 hover:text-red-600 transition-colors"
+                className="text-sm font-medium text-slate-500 hover:text-red-600 transition-colors ml-2"
               >
                 Reset
               </button>
@@ -185,6 +198,9 @@ const App: React.FC = () => {
       <footer className="mt-auto py-8 text-center text-slate-400 text-sm">
          <p>© {new Date().getFullYear()} {APP_NAME}. Internal Tool.</p>
       </footer>
+
+      {/* Help Modal */}
+      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </div>
   );
 };
