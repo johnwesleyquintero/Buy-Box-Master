@@ -14,18 +14,27 @@ const parsePrice = (val: string | number | undefined): number => {
 
 /**
  * The Brain: Determines if we won based on Seller Name.
- * Checks if the buyBoxSeller string *contains* any of our known names.
- * Handles formats like: "SpeedTalk Mobile (100%) / A13X..."
+ * Checks if the buyBoxSeller string matches the target identity.
+ * 
+ * @param buyBoxSeller - The seller name from the CSV
+ * @param buyBoxPrice - The price from the CSV
+ * @param targetIdentity - 'ALL' or a specific brand name (e.g., 'Jolt Mobile')
  */
-export const determineStatus = (buyBoxSeller: string, buyBoxPrice: number): BuyBoxStatus => {
+export const determineStatus = (buyBoxSeller: string, buyBoxPrice: number, targetIdentity: string = 'ALL'): BuyBoxStatus => {
   if (!buyBoxPrice || buyBoxPrice === 0) {
     return BuyBoxStatus.SUPPRESSED;
   }
 
   const sellerLower = buyBoxSeller.toLowerCase();
-  
-  // Loose matching: check if the seller string includes our brand name
-  const isUs = OUR_SELLER_NAMES.some(name => sellerLower.includes(name.toLowerCase()));
+  let isUs = false;
+
+  if (targetIdentity === 'ALL') {
+    // Check if the seller string includes ANY of our brand names
+    isUs = OUR_SELLER_NAMES.some(name => sellerLower.includes(name.toLowerCase()));
+  } else {
+    // Check specific brand identity
+    isUs = sellerLower.includes(targetIdentity.toLowerCase());
+  }
 
   return isUs ? BuyBoxStatus.WON : BuyBoxStatus.LOST;
 };
@@ -33,7 +42,7 @@ export const determineStatus = (buyBoxSeller: string, buyBoxPrice: number): BuyB
 /**
  * Maps raw CSV row to our internal clean structure.
  */
-export const analyzeRow = (row: RawKeepaRow): AnalyzedProduct | null => {
+export const analyzeRow = (row: RawKeepaRow, targetIdentity: string = 'ALL'): AnalyzedProduct | null => {
   // 1. Extract ASIN
   const asin = (row.ASIN || row.asin || 'UNKNOWN').toString();
   if (!asin || asin === 'UNKNOWN') return null;
@@ -62,7 +71,7 @@ export const analyzeRow = (row: RawKeepaRow): AnalyzedProduct | null => {
   const ourPrice = parsePrice(ourPriceRaw);
 
   // 5. Logic
-  const status = determineStatus(bbSellerRaw, buyBoxPrice);
+  const status = determineStatus(bbSellerRaw, buyBoxPrice, targetIdentity);
   const delta = ourPrice - buyBoxPrice;
 
   // 6. Action Recommendation
