@@ -3,10 +3,10 @@ export const APP_VERSION = "v1.0";
 
 // The seller names we identify as "US"
 export const OUR_SELLER_NAMES = [
-  "SecuLife",
-  "SpeedTalk Mobile",
-  "SpeedTalk Mobile Store",
-  "Wes/YourStoreName" // Placeholder from roadmap
+  "Seculife",
+  "EmojiKidz",
+  "Jolt Mobile",
+  "SpeedTalk Mobile"
 ];
 
 export const SUGGESTED_ACTIONS = {

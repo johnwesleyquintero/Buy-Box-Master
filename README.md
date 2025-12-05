@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Stack:** React, TypeScript, Vite, TailwindCSS
 
-A lightning-fast internal tool designed to analyze **Keepa CSV exports** and instantly detect Buy Box status for **SecuLife** and **SpeedTalk Mobile** ASINs.
+A lightning-fast internal tool designed to analyze **Keepa CSV exports** and instantly detect Buy Box status for **SecuLife**, **EmojiKidz**, **Jolt Mobile**, and **SpeedTalk Mobile** ASINs.
 
 ## 🎯 Purpose
 
@@ -16,10 +16,10 @@ This tool eliminates the manual labor of checking line-by-line spreadsheet data.
 
 ### Seller Identification
 The app identifies "Winning" status if the `Buy Box Seller` column matches one of our known aliases (case-insensitive):
-* `SecuLife`
+* `Seculife`
+* `EmojiKidz`
+* `Jolt Mobile`
 * `SpeedTalk Mobile`
-* `SpeedTalk Mobile Store`
-* `Wes/YourStoreName`
 
 ### Status Definitions
 * **✅ WON:** We hold the Buy Box.

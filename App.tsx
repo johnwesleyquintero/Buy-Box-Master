@@ -4,7 +4,7 @@ import ResultsTable from './components/ResultsTable';
 import Summary from './components/Summary';
 import { RawKeepaRow, AnalyzedProduct, BuyBoxStatus, SummaryStats } from './types';
 import { analyzeRow } from './utils/status';
-import { APP_NAME, APP_VERSION } from './constants';
+import { APP_NAME, APP_VERSION, OUR_SELLER_NAMES } from './constants';
 
 const App: React.FC = () => {
   const [analyzedData, setAnalyzedData] = useState<AnalyzedProduct[]>([]);
@@ -75,8 +75,8 @@ const App: React.FC = () => {
           <div className="animate-fade-in">
              <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-slate-900">Analysis Dashboard</h2>
-                <div className="text-sm text-slate-500">
-                  Checking for: <span className="font-mono text-slate-700">SecuLife, SpeedTalk...</span>
+                <div className="text-sm text-slate-500 text-right max-w-md">
+                  Checking for: <span className="font-mono text-slate-700">{OUR_SELLER_NAMES.join(', ')}</span>
                 </div>
              </div>
              
