@@ -1,32 +1,19 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import FileUpload from './components/FileUpload';
 import ResultsTable from './components/ResultsTable';
 import Summary from './components/Summary';
 import HelpModal from './components/HelpModal';
-import { RawKeepaRow, AnalyzedProduct, BuyBoxStatus, SummaryStats } from './types';
-import { analyzeRow } from './utils/status';
+import { RawKeepaRow } from './types';
 import { APP_NAME, APP_VERSION, OUR_SELLER_NAMES } from './constants';
+import { useKeepaAnalysis } from './hooks/useKeepaAnalysis';
 
 const App: React.FC = () => {
   const [rawRows, setRawRows] = useState<RawKeepaRow[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<string>('ALL');
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
-  const analyzedData: AnalyzedProduct[] = useMemo(() => {
-    return rawRows
-      .map(row => analyzeRow(row, selectedBrand))
-      .filter((item): item is AnalyzedProduct => item !== null);
-  }, [rawRows, selectedBrand]);
-
-  const stats: SummaryStats = useMemo(() => {
-    const total = analyzedData.length;
-    const won = analyzedData.filter(p => p.status === BuyBoxStatus.WON).length;
-    const lost = analyzedData.filter(p => p.status === BuyBoxStatus.LOST).length;
-    const suppressed = analyzedData.filter(p => p.status === BuyBoxStatus.SUPPRESSED).length;
-    const winRate = total > 0 ? (won / total) * 100 : 0;
-
-    return { total, won, lost, suppressed, winRate };
-  }, [analyzedData]);
+  // Hook handles data transformation and stats calculation
+  const { analyzedData, stats } = useKeepaAnalysis(rawRows, selectedBrand);
 
   const handleDataLoaded = (data: RawKeepaRow[]) => {
     setRawRows(data);
