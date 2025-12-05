@@ -3,21 +3,36 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Buy Box Master</title>
+    <title>Buy Box Master | Strategic Pricing Intelligence</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
             colors: {
               slate: {
-                850: '#151f32', // Deep dashboard bg
+                850: '#151f32',
+              },
+              brand: {
+                50: '#eff6ff',
+                100: '#dbeafe',
+                500: '#3b82f6',
+                600: '#2563eb',
+                700: '#1d4ed8',
+                900: '#1e3a8a',
               }
             },
             animation: {
-              'fade-in': 'fadeIn 0.5s ease-out',
-              'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+              'fade-in': 'fadeIn 0.6s ease-out',
+              'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             },
             keyframes: {
               fadeIn: {
@@ -25,7 +40,7 @@
                 '100%': { opacity: '1' },
               },
               fadeInUp: {
-                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
               }
             }
@@ -33,6 +48,20 @@
         }
       }
     </script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .bg-grid-pattern {
+        background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+        background-size: 32px 32px;
+      }
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+    </style>
   <script type="importmap">
 {
   "imports": {
@@ -45,8 +74,8 @@
 }
 </script>
 </head>
-  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-900">
-    <div id="root"></div>
+  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-brand-100 selection:text-brand-900 bg-grid-pattern min-h-screen flex flex-col">
+    <div id="root" class="flex-1 flex flex-col"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

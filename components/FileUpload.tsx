@@ -63,31 +63,44 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-10">
+    <div className="w-full max-w-2xl mx-auto relative group">
+      {/* Decorative Blur Background for Glow Effect */}
+      <div className={`absolute -inset-1 bg-gradient-to-r from-brand-400 to-indigo-400 rounded-2xl blur opacity-20 group-hover:opacity-60 transition duration-500 ${isDragging ? 'opacity-100' : ''}`}></div>
+      
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         className={`
-          relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200 ease-in-out
-          ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-white hover:border-slate-400'}
+          relative bg-white rounded-xl p-12 text-center transition-all duration-300 ease-out border
+          ${isDragging 
+            ? 'border-brand-500 scale-[1.02] shadow-2xl' 
+            : 'border-slate-200 shadow-xl group-hover:border-brand-300'
+          }
         `}
       >
-        <div className="space-y-4">
-          <div className="mx-auto h-16 w-16 text-slate-400">
-             {/* Simple CSV Icon SVG */}
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <div className="space-y-6">
+          <div className={`mx-auto h-20 w-20 rounded-full flex items-center justify-center transition-colors duration-300 ${isDragging ? 'bg-brand-100 text-brand-600' : 'bg-slate-50 text-slate-400 group-hover:bg-brand-50 group-hover:text-brand-500'}`}>
+             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
           </div>
           
-          <h3 className="text-xl font-semibold text-slate-900">
-            {loading ? 'Parsing Keepa File...' : 'Upload Keepa Export'}
-          </h3>
-          
-          <p className="text-slate-500">
-            Drag and drop your CSV here, or click to browse.
-          </p>
+          <div className="space-y-2">
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
+              {loading ? 'Crunching Numbers...' : 'Upload Keepa Export'}
+            </h3>
+            <p className="text-slate-500 text-sm max-w-sm mx-auto">
+              Drag and drop your <span className="font-mono text-xs bg-slate-100 px-1 py-0.5 rounded text-slate-600">.csv</span> file here, or click to browse files from your computer.
+            </p>
+          </div>
+
+          <button className={`
+            px-6 py-2.5 rounded-lg text-sm font-semibold shadow-sm ring-1 ring-inset
+            ${loading ? 'bg-slate-100 text-slate-400 ring-slate-200 cursor-not-allowed' : 'bg-white text-slate-900 ring-slate-300 hover:bg-slate-50'}
+          `}>
+             Select File manually
+          </button>
 
           <input
             type="file"
@@ -100,14 +113,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onDataLoaded }) => {
       </div>
       
       {error && (
-        <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm text-center">
+        <div className="mt-4 p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 text-sm font-medium text-center shadow-sm animate-fade-in">
           {error}
         </div>
       )}
-
-      <div className="mt-8 text-center text-xs text-slate-400">
-        Compatible with Standard Keepa Data Exports • Auto-detection of Buy Box Columns
-      </div>
     </div>
   );
 };

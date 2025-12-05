@@ -49,8 +49,13 @@ export const analyzeRow = (row: RawKeepaRow, targetIdentity: string = 'ALL'): An
 
   // 2. Extract Title
   const title = (row.Title || row.title || 'Unknown Product').toString();
+
+  // 3. Extract Image
+  // Keepa sometimes sends multiple semicolon-separated images, take the first one.
+  const imageRaw = row['Image'] || row['image'] || '';
+  const imageUrl = imageRaw ? imageRaw.toString().split(';')[0].trim() : null;
   
-  // 3. Extract Seller
+  // 4. Extract Seller
   // Priority: "Buy Box: Buy Box Seller" (from provided CSV) -> standard fallbacks
   const bbSellerRaw = (
     row['Buy Box: Buy Box Seller'] || 
@@ -60,7 +65,7 @@ export const analyzeRow = (row: RawKeepaRow, targetIdentity: string = 'ALL'): An
     '-'
   ).toString();
   
-  // 4. Extract Prices
+  // 5. Extract Prices
   // Priority: "Buy Box 🚚: Current" -> standard fallbacks
   const bbPriceRaw = row['Buy Box 🚚: Current'] || row['Buy Box Price'] || row.buyBoxPrice;
   
@@ -70,11 +75,11 @@ export const analyzeRow = (row: RawKeepaRow, targetIdentity: string = 'ALL'): An
   const buyBoxPrice = parsePrice(bbPriceRaw);
   const ourPrice = parsePrice(ourPriceRaw);
 
-  // 5. Logic
+  // 6. Logic
   const status = determineStatus(bbSellerRaw, buyBoxPrice, targetIdentity);
   const delta = ourPrice - buyBoxPrice;
 
-  // 6. Action Recommendation
+  // 7. Action Recommendation
   let action = '';
   switch (status) {
     case BuyBoxStatus.WON:
@@ -92,6 +97,7 @@ export const analyzeRow = (row: RawKeepaRow, targetIdentity: string = 'ALL'): An
     id: asin + Math.random().toString(36).substr(2, 9),
     asin,
     title,
+    imageUrl,
     buyBoxSeller: bbSellerRaw, // Keep the full raw string (e.g. with rating) for context
     buyBoxPrice,
     ourPrice,

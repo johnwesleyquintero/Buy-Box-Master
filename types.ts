@@ -13,6 +13,9 @@ export interface RawKeepaRow {
   
   Title?: string;
   title?: string;
+
+  Image?: string;
+  image?: string;
   
   // Specific Headers from provided CSV
   "Buy Box 🚚: Current"?: string;
@@ -29,6 +32,7 @@ export interface AnalyzedProduct {
   id: string; // generated UUID or ASIN
   asin: string;
   title: string;
+  imageUrl: string | null; // Added image URL
   ourPrice: number;
   buyBoxPrice: number;
   buyBoxSeller: string;
