@@ -118,7 +118,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
   };
 
   // Helper for Header Cell with Sort
-  const HeaderCell = ({ label, sortKey, align = 'left' }: { label: string; sortKey: SortKey; align?: 'left' | 'right' }) => {
+  const HeaderCell = ({ label, sortKey, align = 'left', title }: { label: string; sortKey: SortKey; align?: 'left' | 'right', title?: string }) => {
     const isActive = sortConfig?.key === sortKey;
     const direction = sortConfig?.direction;
 
@@ -126,6 +126,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
       <th
         scope="col"
         onClick={() => requestSort(sortKey)}
+        title={title}
         className={`sticky top-0 z-10 bg-slate-50 px-6 py-3 font-semibold cursor-pointer select-none group border-b border-slate-200 shadow-sm ${align === 'right' ? 'text-right' : 'text-left'}`}
       >
         <div className={`flex items-center gap-1 ${align === 'right' ? 'justify-end' : 'justify-start'}`}>
@@ -189,7 +190,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
                 <HeaderCell label="Status" sortKey="status" />
                 <HeaderCell label="Our Price" sortKey="ourPrice" align="right" />
                 <HeaderCell label="BB Price" sortKey="buyBoxPrice" align="right" />
-                <HeaderCell label="Delta" sortKey="delta" align="right" />
+                <HeaderCell label="Delta" sortKey="delta" align="right" title="Our Price - BB Price (Red = More Expensive)" />
                 <HeaderCell label="Current Winner" sortKey="buyBoxSeller" />
                 <HeaderCell label="Action" sortKey="action" />
               </tr>
