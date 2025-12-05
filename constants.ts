@@ -5,7 +5,7 @@ export const APP_VERSION = "v1.0";
 export const OUR_SELLER_NAMES = [
   "Seculife",
   "EmojiKidz",
-  "Jolt Mobile",
+  "Jolt Inc.",
   "SpeedTalk Mobile"
 ];
 

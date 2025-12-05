@@ -18,7 +18,7 @@ const parsePrice = (val: string | number | undefined): number => {
  * 
  * @param buyBoxSeller - The seller name from the CSV
  * @param buyBoxPrice - The price from the CSV
- * @param targetIdentity - 'ALL' or a specific brand name (e.g., 'Jolt Mobile')
+ * @param targetIdentity - 'ALL' or a specific brand name (e.g., 'Jolt Inc.')
  */
 export const determineStatus = (buyBoxSeller: string, buyBoxPrice: number, targetIdentity: string = 'ALL'): BuyBoxStatus => {
   if (!buyBoxPrice || buyBoxPrice === 0) {
