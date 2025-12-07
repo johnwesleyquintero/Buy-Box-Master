@@ -3,6 +3,7 @@ import { AnalyzedProduct, BuyBoxStatus } from '../types';
 import { useProductTable, SortKey, SortConfig } from '../hooks/useProductTable';
 import { IconSortAsc, IconSortDesc, IconImage, IconCheckCircle, IconCopy, IconNoResults } from './Icons';
 import TableToolbar from './TableToolbar';
+import { downloadCSV } from '../utils/export';
 
 interface ResultsTableProps {
   products: AnalyzedProduct[];
@@ -63,6 +64,10 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
     setTimeout(() => setCopiedId(null), 1500);
   };
 
+  const handleDownload = () => {
+    downloadCSV(processedProducts);
+  };
+
   const handleMouseEnterImage = (e: React.MouseEvent<HTMLDivElement>, src: string | null) => {
     if (!src) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -103,6 +108,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
         setFilterText={setFilterText}
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
+        onDownload={handleDownload}
       />
 
       <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col h-[600px]">
