@@ -43,9 +43,10 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
             <div className="space-y-3">
                 <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider">1. The Workflow</h4>
                 <ol className="list-decimal list-inside space-y-2 text-slate-600 text-sm">
+                    <li>Configure your <strong>Brand Identities</strong> in the settings menu.</li>
                     <li>Export your data from Keepa as a <strong>CSV</strong> file.</li>
                     <li>Drag & Drop the file into the dashboard area.</li>
-                    <li>The system instantly matches the "Buy Box Seller" against our known aliases (SecuLife, SpeedTalk, etc.).</li>
+                    <li>The system instantly matches the "Buy Box Seller" against your configured brands.</li>
                 </ol>
             </div>
 
@@ -56,7 +57,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                     <div className="p-3 rounded-xl bg-green-50 border border-green-100">
                         <span className="text-xs font-bold text-green-700 block mb-1">✅ WON</span>
                         <p className="text-xs text-green-800/80 leading-relaxed">
-                            We currently hold the Buy Box. Recommendation: <strong>Hold Price</strong>.
+                            You currently hold the Buy Box. Recommendation: <strong>Hold Price</strong>.
                         </p>
                     </div>
                     <div className="p-3 rounded-xl bg-red-50 border border-red-100">
@@ -82,11 +83,11 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                     <ul className="space-y-1 ml-4">
                         <li className="flex items-center gap-2">
                             <span className="inline-flex items-center rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">+$5.00</span>
-                            <span>= We are <strong>$5.00 more expensive</strong> than the winner.</span>
+                            <span>= You are <strong>$5.00 more expensive</strong> than the winner.</span>
                         </li>
                         <li className="flex items-center gap-2">
                              <span className="inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">-$2.00</span>
-                            <span>= We are <strong>$2.00 cheaper</strong> than the winner.</span>
+                            <span>= You are <strong>$2.00 cheaper</strong> than the winner.</span>
                         </li>
                     </ul>
                 </div>

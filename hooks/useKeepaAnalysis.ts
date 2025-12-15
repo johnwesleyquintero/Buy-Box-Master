@@ -9,15 +9,16 @@ interface UseKeepaAnalysisResult {
 
 export const useKeepaAnalysis = (
   rawRows: RawKeepaRow[], 
-  selectedBrand: string
+  selectedBrand: string,
+  identities: string[] // Added dynamic identities list
 ): UseKeepaAnalysisResult => {
   
   // 1. Transform Raw Rows to Analyzed Products
   const analyzedData: AnalyzedProduct[] = useMemo(() => {
     return rawRows
-      .map(row => analyzeRow(row, selectedBrand))
+      .map(row => analyzeRow(row, selectedBrand, identities))
       .filter((item): item is AnalyzedProduct => item !== null);
-  }, [rawRows, selectedBrand]);
+  }, [rawRows, selectedBrand, identities]); // Re-run if identities change
 
   // 2. Calculate Real-time Statistics
   const stats: SummaryStats = useMemo(() => {

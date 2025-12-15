@@ -1,5 +1,5 @@
 import { BuyBoxStatus, AnalyzedProduct, RawKeepaRow } from '../types';
-import { OUR_SELLER_NAMES, SUGGESTED_ACTIONS } from '../constants';
+import { SUGGESTED_ACTIONS } from '../constants';
 
 /**
  * Normalizes price strings to numbers.
@@ -19,8 +19,14 @@ const parsePrice = (val: string | number | undefined): number => {
  * @param buyBoxSeller - The seller name from the CSV
  * @param buyBoxPrice - The price from the CSV
  * @param targetIdentity - 'ALL' or a specific brand name (e.g., 'Jolt Inc.')
+ * @param identities - List of seller names that belong to "Us"
  */
-export const determineStatus = (buyBoxSeller: string, buyBoxPrice: number, targetIdentity: string = 'ALL'): BuyBoxStatus => {
+export const determineStatus = (
+  buyBoxSeller: string, 
+  buyBoxPrice: number, 
+  targetIdentity: string = 'ALL',
+  identities: string[] = []
+): BuyBoxStatus => {
   if (!buyBoxPrice || buyBoxPrice === 0) {
     return BuyBoxStatus.SUPPRESSED;
   }
@@ -30,7 +36,7 @@ export const determineStatus = (buyBoxSeller: string, buyBoxPrice: number, targe
 
   if (targetIdentity === 'ALL') {
     // Check if the seller string includes ANY of our brand names
-    isUs = OUR_SELLER_NAMES.some(name => sellerLower.includes(name.toLowerCase()));
+    isUs = identities.some(name => sellerLower.includes(name.toLowerCase()));
   } else {
     // Check specific brand identity
     isUs = sellerLower.includes(targetIdentity.toLowerCase());
@@ -42,7 +48,11 @@ export const determineStatus = (buyBoxSeller: string, buyBoxPrice: number, targe
 /**
  * Maps raw CSV row to our internal clean structure.
  */
-export const analyzeRow = (row: RawKeepaRow, targetIdentity: string = 'ALL'): AnalyzedProduct | null => {
+export const analyzeRow = (
+  row: RawKeepaRow, 
+  targetIdentity: string = 'ALL', 
+  identities: string[] = []
+): AnalyzedProduct | null => {
   // 1. Extract ASIN
   const asin = (row.ASIN || row.asin || 'UNKNOWN').toString();
   if (!asin || asin === 'UNKNOWN') return null;
@@ -51,12 +61,10 @@ export const analyzeRow = (row: RawKeepaRow, targetIdentity: string = 'ALL'): An
   const title = (row.Title || row.title || 'Unknown Product').toString();
 
   // 3. Extract Image
-  // Keepa sometimes sends multiple semicolon-separated images, take the first one.
   const imageRaw = row['Image'] || row['image'] || '';
   const imageUrl = imageRaw ? imageRaw.toString().split(';')[0].trim() : null;
   
   // 4. Extract Seller
-  // Priority: "Buy Box: Buy Box Seller" (from provided CSV) -> standard fallbacks
   const bbSellerRaw = (
     row['Buy Box: Buy Box Seller'] || 
     row['Buy Box Seller'] || 
@@ -66,17 +74,14 @@ export const analyzeRow = (row: RawKeepaRow, targetIdentity: string = 'ALL'): An
   ).toString();
   
   // 5. Extract Prices
-  // Priority: "Buy Box 🚚: Current" -> standard fallbacks
   const bbPriceRaw = row['Buy Box 🚚: Current'] || row['Buy Box Price'] || row.buyBoxPrice;
-  
-  // Priority: "New: Current" (Lowest New) -> standard fallbacks
   const ourPriceRaw = row['New: Current'] || row['New'] || row['Amazon'] || 0;
 
   const buyBoxPrice = parsePrice(bbPriceRaw);
   const ourPrice = parsePrice(ourPriceRaw);
 
-  // 6. Logic
-  const status = determineStatus(bbSellerRaw, buyBoxPrice, targetIdentity);
+  // 6. Logic - Pass identities down
+  const status = determineStatus(bbSellerRaw, buyBoxPrice, targetIdentity, identities);
   const delta = ourPrice - buyBoxPrice;
 
   // 7. Action Recommendation
@@ -98,7 +103,7 @@ export const analyzeRow = (row: RawKeepaRow, targetIdentity: string = 'ALL'): An
     asin,
     title,
     imageUrl,
-    buyBoxSeller: bbSellerRaw, // Keep the full raw string (e.g. with rating) for context
+    buyBoxSeller: bbSellerRaw,
     buyBoxPrice,
     ourPrice,
     status,

@@ -1,12 +1,11 @@
 export const APP_NAME = "Buy Box Master";
-export const APP_VERSION = "v1.0";
+export const APP_VERSION = "v1.2";
 
-// The seller names we identify as "US"
-export const OUR_SELLER_NAMES = [
-  "Seculife",
-  "EmojiKidz",
-  "Jolt Inc.",
-  "SpeedTalk Mobile"
+// Default fallback if user hasn't configured their own
+export const DEFAULT_SELLER_NAMES = [
+  "My Store Name",
+  "My LLC Name",
+  "Brand Alias 1"
 ];
 
 export const SUGGESTED_ACTIONS = {
