@@ -22,8 +22,7 @@ const Hero: React.FC<HeroProps> = ({ onDataLoaded }) => {
         Dominate the Buy Box.
       </h2>
       <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-        The internal intelligence tool for <span className="font-semibold text-slate-900">Speedtalk, SecuLife, EmojiKidz</span> & <span className="font-semibold text-slate-900">Jolt</span>. 
-        Instantly analyze CSV exports to detect win rates, spot suppression, and optimize pricing strategy.
+        Internal intelligence tool to instantly analyze CSV exports, detect win rates, spot suppression, and optimize pricing strategy.
       </p>
 
       {/* Features Grid */}
@@ -43,7 +42,7 @@ const Hero: React.FC<HeroProps> = ({ onDataLoaded }) => {
            </div>
            <div>
               <h3 className="font-semibold text-slate-900 text-sm">Competitor Recon</h3>
-              <p className="text-xs text-slate-500 mt-1">See exactly who is stealing your sales.</p>
+              <p className="text-xs text-slate-500 mt-1">See exactly who is impacting sales.</p>
            </div>
         </div>
         <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-white/50 shadow-sm flex items-start gap-3">
@@ -60,7 +59,7 @@ const Hero: React.FC<HeroProps> = ({ onDataLoaded }) => {
       <FileUpload onDataLoaded={onDataLoaded} />
       
       <p className="mt-8 text-xs text-slate-400 font-medium tracking-wide">
-        TRUSTED BY OPERATIONS TEAMS AT SPEEDTALK, EMOJIKIDZ, JOLT & SECULIFE
+        Trusted csv data processor
       </p>
     </div>
   );

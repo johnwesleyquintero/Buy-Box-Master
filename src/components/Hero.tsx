@@ -60,7 +60,7 @@ const Hero: React.FC<HeroProps> = ({ onDataLoaded }) => {
       <FileUpload onDataLoaded={onDataLoaded} />
       
       <p className="mt-8 text-xs text-slate-400 font-medium tracking-wide">
-        TRUSTED BY OPERATIONS TEAMS AT SPEEDTALK, EMOJIKIDZ, JOLT & SECULIFE
+        A KEEP EXPORT CSV PROCESSOR TOOL
       </p>
     </div>
   );
