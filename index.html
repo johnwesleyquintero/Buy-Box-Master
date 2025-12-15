@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -52,14 +52,28 @@
       body {
         font-family: 'Inter', sans-serif;
       }
-      .bg-grid-pattern {
-        background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-        background-size: 32px 32px;
+      .bg-custom-gradient {
+        background-color: #f8fafc;
+        background-image: radial-gradient(at 40% 20%, hsla(215,98%,61%,0.05) 0px, transparent 50%),
+                          radial-gradient(at 80% 0%, hsla(189,100%,56%,0.05) 0px, transparent 50%),
+                          radial-gradient(at 0% 50%, hsla(340,100%,76%,0.05) 0px, transparent 50%);
       }
       .glass-panel {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
+      }
+      /* Custom scrollbar for better table experience */
+      .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 20px;
       }
     </style>
   <script type="importmap">
@@ -74,7 +88,7 @@
 }
 </script>
 </head>
-  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-brand-100 selection:text-brand-900 bg-grid-pattern min-h-screen flex flex-col">
+  <body class="bg-custom-gradient text-slate-900 antialiased selection:bg-brand-100 selection:text-brand-900 min-h-screen flex flex-col">
     <div id="root" class="flex-1 flex flex-col"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

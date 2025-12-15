@@ -1,5 +1,4 @@
 import { BuyBoxStatus, AnalyzedProduct, RawKeepaRow } from '../types';
-import { SUGGESTED_ACTIONS } from '../constants';
 
 /**
  * Normalizes price strings to numbers.
@@ -84,18 +83,36 @@ export const analyzeRow = (
   const status = determineStatus(bbSellerRaw, buyBoxPrice, targetIdentity, identities);
   const delta = ourPrice - buyBoxPrice;
 
-  // 7. Action Recommendation
+  // 7. Action Recommendation Logic
   let action = '';
-  switch (status) {
-    case BuyBoxStatus.WON:
-      action = SUGGESTED_ACTIONS.WON;
-      break;
-    case BuyBoxStatus.SUPPRESSED:
-      action = SUGGESTED_ACTIONS.SUPPRESSED;
-      break;
-    case BuyBoxStatus.LOST:
-      action = SUGGESTED_ACTIONS.LOST;
-      break;
+
+  if (status === BuyBoxStatus.SUPPRESSED) {
+      action = "Fix Listing / Add Price";
+  } else if (status === BuyBoxStatus.WON) {
+      // If we WON, delta is usually 0. 
+      // If delta is negative (ourPrice < buyBoxPrice), we are undercutting the recorded BB price.
+      if (delta <= -1.0) {
+          action = "Consider a slight price increase";
+      } else {
+          action = "Hold Price";
+      }
+  } else {
+      // Status: LOST
+      if (ourPrice === 0) {
+          action = "Check Stock / Set Price";
+      } else if (delta > 0) {
+          // We are more expensive than the Buy Box
+          if (delta > 3.0 || (buyBoxPrice > 0 && (delta / buyBoxPrice) > 0.15)) {
+               // If price difference is > $3.00 or > 15%, suggest aggressive action
+               action = "Aggressively reprice to capture Buy Box";
+          } else {
+               action = "Lower Price to Match";
+          }
+      } else {
+          // We are cheaper (negative delta) or equal but LOST
+          // Likely due to shipping time, FBA status, or account health
+          action = "Check Eligibility / Metrics";
+      }
   }
 
   return {

@@ -28,7 +28,7 @@ const HeaderCell: React.FC<HeaderCellProps> = ({ label, sortKey, align = 'left',
       scope="col"
       onClick={() => onRequestSort(sortKey)}
       title={title}
-      className={`sticky top-0 z-10 bg-slate-50 px-6 py-3 font-semibold cursor-pointer select-none group border-b border-slate-200 shadow-sm ${align === 'right' ? 'text-right' : 'text-left'}`}
+      className={`sticky top-0 z-10 bg-slate-50/95 backdrop-blur-sm px-6 py-3 font-semibold cursor-pointer select-none group border-b border-slate-200 shadow-sm ${align === 'right' ? 'text-right' : 'text-left'}`}
     >
       <div className={`flex items-center gap-1 ${align === 'right' ? 'justify-end' : 'justify-start'}`}>
         {label}
@@ -85,21 +85,44 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
   const getStatusBadge = (status: BuyBoxStatus) => {
     switch (status) {
       case BuyBoxStatus.WON:
-        return <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">WON</span>;
+        return <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-bold text-green-700 border border-green-200">WON</span>;
       case BuyBoxStatus.LOST:
-        return <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">LOST</span>;
+        return <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700 border border-red-200">LOST</span>;
       case BuyBoxStatus.SUPPRESSED:
-        return <span className="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">SUPPRESSED</span>;
+        return <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-bold text-yellow-800 border border-yellow-200">SUPPRESSED</span>;
       default:
         return null;
     }
   };
 
   const getDeltaBadge = (delta: number) => {
-    if (delta > 0) return <span className="inline-flex items-center rounded bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">+{delta.toFixed(2)}</span>;
-    if (delta < 0) return <span className="inline-flex items-center rounded bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">{delta.toFixed(2)}</span>;
-    return <span className="text-slate-400 font-mono text-xs">-</span>;
+    if (delta > 0) return <span className="inline-flex items-center rounded bg-red-50 px-2 py-0.5 text-xs font-bold text-red-600">+{delta.toFixed(2)}</span>;
+    if (delta < 0) return <span className="inline-flex items-center rounded bg-green-50 px-2 py-0.5 text-xs font-bold text-green-600">{delta.toFixed(2)}</span>;
+    return <span className="text-slate-300 font-mono text-xs">-</span>;
   };
+
+  const getRowBackground = (status: BuyBoxStatus) => {
+      switch(status) {
+          case BuyBoxStatus.WON: return "bg-green-50/30 hover:bg-green-50/60";
+          case BuyBoxStatus.LOST: return "bg-red-50/30 hover:bg-red-50/60";
+          case BuyBoxStatus.SUPPRESSED: return "bg-yellow-50/30 hover:bg-yellow-50/60";
+          default: return "hover:bg-slate-50";
+      }
+  };
+
+  const getActionStyle = (action: string, status: BuyBoxStatus) => {
+      if (status === BuyBoxStatus.WON) {
+          return "text-slate-400 text-xs italic";
+      }
+      if (status === BuyBoxStatus.SUPPRESSED) {
+          return "inline-block px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs font-semibold";
+      }
+      // LOST
+      if (action.includes("Aggressively") || action.includes("Lower")) {
+           return "inline-block px-2 py-1 rounded bg-blue-600 text-white text-xs font-bold shadow-sm";
+      }
+      return "text-slate-600 text-xs font-medium";
+  }
 
   return (
     <div className="space-y-4">
@@ -116,27 +139,27 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
           <table className="min-w-full text-left text-sm whitespace-nowrap border-separate border-spacing-0">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
-                <HeaderCell label="ASIN / Product" sortKey="title" sortConfig={sortConfig} onRequestSort={requestSort} />
+                <HeaderCell label="Product Info" sortKey="title" sortConfig={sortConfig} onRequestSort={requestSort} />
                 <HeaderCell label="Status" sortKey="status" sortConfig={sortConfig} onRequestSort={requestSort} />
                 <HeaderCell label="Our Price" sortKey="ourPrice" align="right" sortConfig={sortConfig} onRequestSort={requestSort} />
                 <HeaderCell label="BB Price" sortKey="buyBoxPrice" align="right" sortConfig={sortConfig} onRequestSort={requestSort} />
-                <HeaderCell label="Delta" sortKey="delta" align="right" title="Our Price - BB Price (Red = More Expensive)" sortConfig={sortConfig} onRequestSort={requestSort} />
-                <HeaderCell label="Current Winner" sortKey="buyBoxSeller" sortConfig={sortConfig} onRequestSort={requestSort} />
-                <HeaderCell label="Action" sortKey="action" sortConfig={sortConfig} onRequestSort={requestSort} />
+                <HeaderCell label="Gap" sortKey="delta" align="right" title="Our Price - BB Price (Red = More Expensive)" sortConfig={sortConfig} onRequestSort={requestSort} />
+                <HeaderCell label="Winner Identity" sortKey="buyBoxSeller" sortConfig={sortConfig} onRequestSort={requestSort} />
+                <HeaderCell label="Recommendation" sortKey="action" sortConfig={sortConfig} onRequestSort={requestSort} />
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {processedProducts.length > 0 ? (
                 processedProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-slate-50 transition-colors group">
-                    <td className="px-6 py-4">
+                  <tr key={product.id} className={`transition-colors group ${getRowBackground(product.status)}`}>
+                    <td className="px-6 py-3">
                       <div className="flex items-center gap-3">
                         <div 
                           className="relative shrink-0 cursor-zoom-in"
                           onMouseEnter={(e) => handleMouseEnterImage(e, product.imageUrl)}
                           onMouseLeave={handleMouseLeaveImage}
                         >
-                          <div className="h-10 w-10 rounded bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
+                          <div className="h-10 w-10 rounded bg-white border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
                             {product.imageUrl ? (
                                 <img src={product.imageUrl} alt="" className="h-full w-full object-contain" />
                             ) : (
@@ -147,7 +170,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
 
                         <div>
                           <div 
-                            className="flex items-center gap-2 font-medium text-slate-900 cursor-pointer hover:text-blue-600 transition-colors"
+                            className="flex items-center gap-2 font-bold text-slate-700 cursor-pointer hover:text-blue-600 transition-colors"
                             onClick={() => handleCopyAsin(product.asin, product.id)}
                             title="Click to copy ASIN"
                           >
@@ -160,27 +183,27 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ products }) => {
                               )}
                             </span>
                           </div>
-                          <div className="text-xs text-slate-500 truncate max-w-[200px]" title={product.title}>
+                          <div className="text-xs text-slate-500 truncate max-w-[220px]" title={product.title}>
                             {product.title}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">{getStatusBadge(product.status)}</td>
-                    <td className="px-6 py-4 text-right font-medium text-slate-700">
+                    <td className="px-6 py-3">{getStatusBadge(product.status)}</td>
+                    <td className="px-6 py-3 text-right font-semibold text-slate-700">
                       {product.ourPrice > 0 ? `$${product.ourPrice.toFixed(2)}` : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 text-right font-medium text-slate-900">
+                    <td className="px-6 py-3 text-right font-medium text-slate-600">
                       {product.buyBoxPrice > 0 ? `$${product.buyBoxPrice.toFixed(2)}` : '-'}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-3 text-right">
                       {getDeltaBadge(product.delta)}
                     </td>
-                    <td className="px-6 py-4 text-slate-600 max-w-[150px] truncate" title={product.buyBoxSeller}>
+                    <td className="px-6 py-3 text-slate-500 max-w-[150px] truncate text-xs" title={product.buyBoxSeller}>
                       {product.buyBoxSeller || 'Unknown'}
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`text-xs ${product.status === BuyBoxStatus.WON ? 'text-slate-400' : 'text-blue-600 font-medium'}`}>
+                    <td className="px-6 py-3">
+                      <span className={getActionStyle(product.action, product.status)}>
                         {product.action}
                       </span>
                     </td>

@@ -47,4 +47,5 @@ export interface SummaryStats {
   lost: number;
   suppressed: number;
   winRate: number;
+  avgDelta: number; // Average price gap on lost items
 }
