@@ -63,7 +63,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                     <div className="p-3 rounded-xl bg-red-50 border border-red-100">
                         <span className="text-xs font-bold text-red-700 block mb-1">❌ LOST</span>
                         <p className="text-xs text-red-800/80 leading-relaxed">
-                            A competitor (or Amazon) holds the Buy Box. Check the <strong>Delta</strong>.
+                            A competitor (or Amazon) holds the Buy Box. Check the <strong>Price Gap</strong>.
                         </p>
                     </div>
                     <div className="p-3 rounded-xl bg-yellow-50 border border-yellow-100">
@@ -75,11 +75,11 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                 </div>
             </div>
 
-            {/* Section 3: Delta */}
+            {/* Section 3: Gap */}
             <div className="space-y-3">
-                <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider">3. Understanding "Delta"</h4>
+                <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wider">3. Understanding "Gap"</h4>
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-sm text-slate-600 space-y-2">
-                    <p>Delta represents the gap between <strong>Our Price</strong> and the <strong>Buy Box Price</strong>.</p>
+                    <p>The <strong>Gap</strong> represents the difference between <strong>Our Price</strong> and the <strong>Buy Box Price</strong>.</p>
                     <ul className="space-y-1 ml-4">
                         <li className="flex items-center gap-2">
                             <span className="inline-flex items-center rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">+$5.00</span>
