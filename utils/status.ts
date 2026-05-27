@@ -4,11 +4,60 @@ import { BuyBoxStatus, AnalyzedProduct, RawKeepaRow } from '../types';
  * Normalizes price strings to numbers.
  * Handles "$5.00", "5.00", and empty strings.
  */
-const parsePrice = (val: string | number | undefined): number => {
+const parsePrice = (val: string | number | boolean | null | undefined): number => {
   if (typeof val === 'number') return val;
-  if (!val || val === '-') return 0; // Keepa uses '-' for empty sometimes
+  if (typeof val !== 'string' || !val || val === '-') return 0;
   const clean = val.replace(/[^0-9.]/g, '');
   return parseFloat(clean) || 0;
+};
+
+/**
+ * Normalizes Keepa boolean-like values (yes/no, 1/0, true/false)
+ */
+const normalizeBool = (val: string | number | boolean | null | undefined): boolean => {
+  if (typeof val === 'boolean') return val;
+  if (typeof val === 'string') {
+    const lower = val.toLowerCase().trim();
+    return lower === 'yes' || lower === 'true' || lower === '1';
+  }
+  if (typeof val === 'number') return val === 1;
+  return false;
+};
+
+/**
+ * Safely extracts a value from a row using multiple possible keys (resilience)
+ */
+const getSafeValue = (row: RawKeepaRow, keys: string[]): string | number | undefined => {
+  const rowKeys = Object.keys(row);
+  for (const searchKey of keys) {
+    // 1. Try exact match
+    if (row[searchKey] !== undefined && row[searchKey] !== null && row[searchKey] !== '-') {
+      return row[searchKey];
+    }
+    // 2. Try case-insensitive and trimmed match (Keepa often adds trailing spaces)
+    const normalizedSearch = searchKey.trim().toLowerCase();
+    const actualKey = rowKeys.find(k => k.trim().toLowerCase() === normalizedSearch);
+    
+    if (actualKey && row[actualKey] !== undefined && row[actualKey] !== null && row[actualKey] !== '-') {
+      return row[actualKey];
+    }
+  }
+  return undefined;
+};
+
+export const mapKeepaRow = (row: RawKeepaRow) => {
+  const buyBoxPrice = parsePrice(getSafeValue(row, ["Buy Box: Current", "Buy Box 🚚: Current", "Buy Box Price", "Buy Box Winner: Price"]));
+  const sellerRaw = getSafeValue(row, ["Buy Box: Buy Box Seller", "Buy Box Seller", "Buy Box: Seller", "Buy Box Winner"]);
+  
+  return {
+    asin: String(getSafeValue(row, ["ASIN", "asin"]) || "UNKNOWN"),
+    title: String(getSafeValue(row, ["Title", "title"]) || "Unknown Product"),
+    buyBoxPrice,
+    buyBoxSeller: sellerRaw ? String(sellerRaw).trim() : "-",
+    ourPrice: parsePrice(getSafeValue(row, ["New: Current", "New", "Amazon", "Merchant Price"])),
+    isSuppressed: buyBoxPrice === 0 || !sellerRaw || sellerRaw === '-',
+    prime: normalizeBool(getSafeValue(row, ["Buy Box: Prime Eligible", "Buy Box: Prime exclusive"]))
+  };
 };
 
 /**
@@ -26,19 +75,19 @@ export const determineStatus = (
   targetIdentity: string = 'ALL',
   identities: string[] = []
 ): BuyBoxStatus => {
-  if (!buyBoxPrice || buyBoxPrice === 0) {
+  if (buyBoxPrice === 0 || !buyBoxSeller || buyBoxSeller === '-') {
     return BuyBoxStatus.SUPPRESSED;
   }
 
-  const sellerLower = buyBoxSeller.toLowerCase();
+  const sellerLower = buyBoxSeller.toLowerCase().trim();
   let isUs = false;
 
   if (targetIdentity === 'ALL') {
     // Check if the seller string includes ANY of our brand names
-    isUs = identities.some(name => sellerLower.includes(name.toLowerCase()));
+    isUs = identities.some(name => name && sellerLower.includes(name.toLowerCase().trim()));
   } else {
     // Check specific brand identity
-    isUs = sellerLower.includes(targetIdentity.toLowerCase());
+    isUs = sellerLower.includes(targetIdentity.toLowerCase().trim());
   }
 
   return isUs ? BuyBoxStatus.WON : BuyBoxStatus.LOST;
@@ -52,36 +101,19 @@ export const analyzeRow = (
   targetIdentity: string = 'ALL', 
   identities: string[] = []
 ): AnalyzedProduct | null => {
-  // 1. Extract ASIN
-  const asin = (row.ASIN || row.asin || 'UNKNOWN').toString();
-  if (!asin || asin === 'UNKNOWN') return null;
+  const mapped = mapKeepaRow(row);
+  
+  if (mapped.asin === 'UNKNOWN') return null;
 
-  // 2. Extract Title
-  const title = (row.Title || row.title || 'Unknown Product').toString();
-
-  // 3. Extract Image
+  // Extract Image (handled separately due to specific split logic)
   const imageRaw = row['Image'] || row['image'] || '';
   const imageUrl = imageRaw ? imageRaw.toString().split(';')[0].trim() : null;
   
-  // 4. Extract Seller
-  const bbSellerRaw = (
-    row['Buy Box: Buy Box Seller'] || 
-    row['Buy Box Seller'] || 
-    row.buyBoxSellerName || 
-    row['Buy Box SellerId'] || 
-    '-'
-  ).toString();
-  
-  // 5. Extract Prices
-  const bbPriceRaw = row['Buy Box 🚚: Current'] || row['Buy Box Price'] || row.buyBoxPrice;
-  const ourPriceRaw = row['New: Current'] || row['New'] || row['Amazon'] || 0;
-
-  const buyBoxPrice = parsePrice(bbPriceRaw);
-  const ourPrice = parsePrice(ourPriceRaw);
-
-  // 6. Logic - Pass identities down
-  const status = determineStatus(bbSellerRaw, buyBoxPrice, targetIdentity, identities);
-  const delta = ourPrice - buyBoxPrice;
+  const status = mapped.isSuppressed 
+    ? BuyBoxStatus.SUPPRESSED 
+    : determineStatus(mapped.buyBoxSeller, mapped.buyBoxPrice, targetIdentity, identities);
+    
+  const delta = mapped.ourPrice - mapped.buyBoxPrice;
 
   // 7. Action Recommendation Logic
   let action = '';
@@ -98,11 +130,11 @@ export const analyzeRow = (
       }
   } else {
       // Status: LOST
-      if (ourPrice === 0) {
+      if (mapped.ourPrice === 0) {
           action = "Check Stock / Set Price";
       } else if (delta > 0) {
           // We are more expensive than the Buy Box
-          if (delta > 3.0 || (buyBoxPrice > 0 && (delta / buyBoxPrice) > 0.15)) {
+          if (delta > 3.0 || (mapped.buyBoxPrice > 0 && (delta / mapped.buyBoxPrice) > 0.15)) {
                // If price difference is > $3.00 or > 15%, suggest aggressive action
                action = "Aggressively reprice to capture Buy Box";
           } else {
@@ -116,13 +148,13 @@ export const analyzeRow = (
   }
 
   return {
-    id: asin + Math.random().toString(36).substr(2, 9),
-    asin,
-    title,
+    id: mapped.asin + Math.random().toString(36).slice(2, 11),
+    asin: mapped.asin,
+    title: mapped.title,
     imageUrl,
-    buyBoxSeller: bbSellerRaw,
-    buyBoxPrice,
-    ourPrice,
+    buyBoxSeller: mapped.buyBoxSeller,
+    buyBoxPrice: mapped.buyBoxPrice,
+    ourPrice: mapped.ourPrice,
     status,
     delta,
     action

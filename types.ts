@@ -16,6 +16,8 @@ export interface RawKeepaRow {
 
   Image?: string;
   image?: string;
+
+  "Buy Box: Current"?: string;
   
   // Specific Headers from provided CSV
   "Buy Box 🚚: Current"?: string;
